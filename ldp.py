@@ -37,6 +37,14 @@ D=10
 L=13  
 S=15  
 
+###################################
+# colours
+###################################
+BLACK = 0
+RED = 1
+GREEN = 2
+ORANGE = 3
+
 ####################################
 # init function
 # usage: ldp.init()
@@ -57,11 +65,10 @@ def init():
 	gpio.setup(S,gpio.OUT)
 
 	#initialise the output pins
-	gpio.output(R1,1)
-	gpio.output(G1,1)
+	colour(BLACK)
 	gpio.output(S,1)
 	gpio.output(L,0)
-	gpio.output(EN,0)
+	displayoff()
 	clear()
 ####################################
 # end init function
@@ -75,12 +82,9 @@ def init():
 # bits to blank and turns off display
 ####################################
 def clear():
-		gpio.output(R1,1)
-		gpio.output(G1,1)
+		colour(BLACK)
 		for i in range(80):
-			gpio.output(S,1)
-			gpio.output(S,0)
-			gpio.output(S,1)
+			shift()
 		displayoff()
 ####################################
 # end init function
@@ -108,13 +112,13 @@ def shift():
 # 0=blank 1=red 2=green 3=orange
 ####################################
 def colour(n):
-	if n == 3: #orange	
+	if n == ORANGE:
 		gpio.output(R1,0)
 		gpio.output(G1,0)
-	elif n == 2: #green
+	elif n == GREEN:
 		gpio.output(R1,1)
 		gpio.output(G1,0)
-	elif n == 1: #red
+	elif n == RED:
 		gpio.output(R1,0)
 		gpio.output(G1,1)
 	else: # off
@@ -132,21 +136,8 @@ def colour(n):
 # 0=blank 1=red 2=green 3=orange
 ####################################
 def colourshift(n):
-	if n == 3: #orange	
-		gpio.output(R1,0)
-		gpio.output(G1,0)
-	elif n == 2: #green
-		gpio.output(R1,1)
-		gpio.output(G1,0)
-	elif n == 1: #red
-		gpio.output(R1,0)
-		gpio.output(G1,1)
-	else: # off
-		gpio.output(R1,1)
-		gpio.output(G1,1)
-	gpio.output(S,1)
-	gpio.output(S,0)
-	gpio.output(S,1)
+	colour(n)
+	shift()
 ####################################
 # end colour function
 ####################################
@@ -158,51 +149,18 @@ def colourshift(n):
 # row_value = 0-7
 ####################################
 def showrow(n):
-	if n == 7:
-		gpio.output(A,1)
-		gpio.output(B,1)
-		gpio.output(C,1)
-		gpio.output(D,0)
-	elif n == 6:
-		gpio.output(A,0)
-		gpio.output(B,1)
-		gpio.output(C,1)
-		gpio.output(D,0)
-	elif n == 5:
-		gpio.output(A,1)
-		gpio.output(B,0)
-		gpio.output(C,1)
-		gpio.output(D,0)
-	elif n == 4:
-		gpio.output(A,0)
-		gpio.output(B,0)
-		gpio.output(C,1)
-		gpio.output(D,0)
-	elif n == 3:
-		gpio.output(A,1)
-		gpio.output(B,1)
-		gpio.output(C,0)
-		gpio.output(D,0)
-	elif n == 2:
-		gpio.output(A,0)
-		gpio.output(B,2)
-		gpio.output(C,0)
-		gpio.output(D,0)
-	elif n == 1:
-		gpio.output(A,1)
-		gpio.output(B,0)
-		gpio.output(C,0)
-		gpio.output(D,0)
-	else:
-		gpio.output(A,0)
-		gpio.output(B,0)
-		gpio.output(C,0)
-		gpio.output(D,0)
+  displayoff()
+	# set the line
+	LiB = "{0:04b}".format(n) # Line number in 4-bit binary
+	gpio.output(A,int(LiB[3]))
+	gpio.output(B,int(LiB[2]))
+	gpio.output(C,int(LiB[1]))
+	gpio.output(D,int(LiB[0]))
 	# latch the data
 	gpio.output(L,1)
 	gpio.output(L,0)
 	# display the row
-	gpio.output(EN,1)
+	displayon()
 ####################################
 # end showrow function
 ####################################
