@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, Response, url_for
-from .. import sign as ledsign
+#from .. import sign as ledsign
 # or: import dummysign as ledsign
+import dummysign as ledsign
 
 app = Flask(__name__)
 app.debug = True
 app.config.update(
     {'sign': ledsign.Sign(),
+     'mode': 'static',
     'updateLock': False,
     'lockErr': "Oops! Someone else is updating the sign."
     }
@@ -25,9 +27,9 @@ def updateSign():
     if msg and not app.config['updateLock']:
         app.config['updateLock'] = True # take lock so we don't get conflicts
         msg = msg.encode('ascii', 'ignore')
-        
+
         # There is already a message up, so clear it first
-        if sign.displayProcess: 
+        if sign.displayProcess:
             sign.stop()
 
         # Try and update bitmap
@@ -36,11 +38,13 @@ def updateSign():
                 # Put bitmap to buffer
                 sign.staticPut(msg, color)
                 sign.static()
+                app.config['mode'] = 'static'
             except ValueError:
                 # Too long, so we'll scroll it instead.
                 msg += " "*3
                 sign.scrollPut(msg, color)
                 sign.scroll()
+                app.config['mode'] = 'scroll'
             finally:
                 # Either way, we release the lock and update the page.
                 app.config['updateLock'] = False # release lock
@@ -51,27 +55,29 @@ def updateSign():
             msg += " "*3
             sign.scrollPut(msg, color)
             sign.scroll()
+            app.config['mode'] = 'scroll'
             app.config['updateLock'] = False # release lock
             return render_template("sign.html", msg=msg)
-        
+
     elif app.config['updateLock']:
         # Can't acquire lock
         return render_template("sign.html", err=app.config['lockErr'])
-        
+
 @app.route("/clear")
 def clear():
     sign = app.config['sign']
     if not app.config['updateLock']:
         app.config['updateLock'] = True
-        
-        if sign.displayProcess: 
+
+        if sign.displayProcess:
             sign.stop()
         else:
-            sign.clear()        
+            sign.clear()
         app.config['updateLock'] = False
+        app.config['mode'] = 'static'
         return render_template("sign.html", err="Sign cleared.")
     else:
         return render_template("sign.html", err=app.config['lockErr'])
-        
 
-        
+if __name__ == "__main__":
+    app.run()
