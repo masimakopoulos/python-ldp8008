@@ -15,7 +15,8 @@
 	section#sign-contents {
 		font: 4vw 'LondonFontRegular', monospace;
 		text-align: center;
-		height: 1.8em;
+		height: 2em;
+		line-height: 2em;
 		width: 70%;
 		background: #222;
 		color: #fff;
@@ -26,33 +27,47 @@
 	.red { color: #D01B12; }
 	.orange { color: #FFBF00; }
 	.green { color: #ABE30C; }
+	/* Make it a marquee */
+	.scroll {
+			margin: 0 auto;
+			overflow: hidden;
+			white-space: nowrap;
+			box-sizing: border-box;
+			animation: marquee 10s linear infinite;
+	}
+
+	/* Make it move */
+	@keyframes marquee {
+			0%   { -webkit-transform: translateX(70%); }
+			100% { -webkit-transform: translateX(-70%); }
+	}
 	</style>
 </head>
 <body>
 	{% if err %}
 	<section id="errors">
 		<p>{{ err }}</p>
-	</section>	
+	</section>
 	{% endif %}
-	
+
 	<section id="sign-contents">
 		{% if msg %}
-		<h1 class="{{config.sign.getColor()}}">{{ config.sign.currentMessage }} </h1>
+		<h1 class="{{config.sign.getColor()}} {{config.mode}}">{{ config.sign.currentMessage }} </h1>
 		{% else %}
 		<h1>[sign blank]</h1>
 		{% endif %}
 	</section>
-	
-	<section id="sign-update">	
+
+	<section id="sign-update">
 		<p>Input a new message. The message will scroll if larger than the width of the display.</p>
 		<form method="post" action="/update">
 			<p>
-				<input type="text" name="msg" id="msg" /> 
+				<input type="text" name="msg" id="msg" />
 				<select name="color">
 					<option value="1">Red</option>
 					<option value="2">Green</option>
 					<option value="3">Orange</option>
-				</select>	
+				</select>
 			</p>
 
 			<p>
@@ -61,6 +76,6 @@
 			</p>
 		</form>
 		<p><a href="/clear">Clear Sign</a></p>
-	</section>	
-</body>	
-</html>		
+	</section>
+</body>
+</html>
