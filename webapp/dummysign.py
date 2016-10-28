@@ -21,6 +21,16 @@ class Sign(object):
             self.currentColor = color
             print "New message: {}".format(text)
 
+    def scrollPut(self, text, color=RED):
+        self.currentMessage = text
+        self.currentColor = color
+        print "New message: {}".format(text)
+
+    def staticPut(self, text, color=RED):
+        self.currentMessage = text
+        self.currentColor = color
+        print "New message: {}".format(text)
+
     def static(self):
         print "Display on: static"
         self.displayProcess = True
